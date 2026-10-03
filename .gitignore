@@ -1,0 +1,5 @@
+# Données du site : comptes, annonces, icônes. Jamais dans git : elles se sauvegardent à part.
+site/data/
+site/.env
+node_modules/
+.claude/

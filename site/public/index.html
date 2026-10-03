@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GroupScout</title>
+  <meta name="description" content="Trouve ton raid World of Warcraft ce soir : des raids qui recrutent, des joueurs qui cherchent, et un chat pour s'organiser.">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/svg+xml" href="/logo.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="view-home booting">
+  <!-- Lumière d'ambiance : suit le défilement, la page n'est jamais noire -->
+  <div class="ambient" aria-hidden="true"></div>
+
+  <!-- Halos prismatiques (décor) -->
+  <div class="prism-light" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+  <header class="nav-wrap">
+    <nav class="nav" aria-label="Navigation">
+      <!-- [GroupScout], toujours en entier : « Group » en blanc, « Scout » en violet -->
+      <a class="logo" href="/" data-view="home" aria-label="GroupScout, accueil">
+        <span class="logo-br" aria-hidden="true">[</span><span class="logo-word" translate="no">Group<span class="logo-s">Scout</span></span><span class="logo-br" aria-hidden="true">]</span>
+      </a>
+      <!-- Pages en texte (renderNavLinks) -->
+      <div class="nav-links" id="navLinks"></div>
+      <div class="nav-right">
+        <!-- L'action principale du moment (renderNavCta) -->
+        <div class="nav-cta-slot" id="navCta"></div>
+        <div class="nav-account" id="navAccount"></div>
+        <!-- Les pages quand elles ne tiennent plus dans la barre (palier 3 de fitNav) -->
+        <button class="btn glass small nav-icon nav-burger" type="button" id="navBurger" data-nav-menu="pages" aria-haspopup="menu" aria-controls="navMenu" aria-expanded="false" title="Menu" aria-label="Menu" hidden><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+      </div>
+    </nav>
+    <!-- Menus de la barre (pages, compte), hors de .nav pour que fitNav ne les mesure pas -->
+    <div class="nav-menu" id="navMenu" role="menu" aria-label="Pages de GroupScout" hidden></div>
+    <!-- Notifications (cloche du bloc du compte), rempli par renderNotifPanel() -->
+    <div class="nav-menu notif-panel" id="notifPanel" role="region" aria-label="Notifications" hidden></div>
+  </header>
+
+  <!-- ============================================================== -->
+  <!-- Accueil (provisoire) : la vitrine pour un visiteur, le tableau   -->
+  <!-- de bord pour un compte connecté (#dash, rempli par home.js)      -->
+  <!-- ============================================================== -->
+  <main id="home" class="home">
+    <section class="dash" id="dash" aria-labelledby="dashTitle">
+      <div class="dash-head">
+        <div class="dash-hello">
+          <h1 class="dash-title" id="dashTitle"></h1>
+          <p class="dash-lead" id="dashLead"></p>
+        </div>
+        <div class="lf-head-actions">
+          <a class="btn glass" href="/groups/search" data-lf-go="/groups/search">Je cherche un raid</a>
+          <a class="btn primary" href="/groups/new" data-lf-go="/groups/new" id="dashPost">Poster une annonce</a>
+        </div>
+      </div>
+      <!-- Ce qui manque pour participer : adresse à confirmer, Battle.net à lier -->
+      <div id="dashGate"></div>
+      <!-- Ton prochain raid, tes candidatures, ta recherche (renderDashLfg) -->
+      <div class="dash-lfg" id="dashLfg"></div>
+      <div class="dash-grid">
+        <div class="dash-col">
+          <section class="card dash-card" aria-labelledby="dashRaidsTitle">
+            <div class="dash-card-h"><h2 class="dash-h" id="dashRaidsTitle">Raids qui recrutent</h2><a class="linkish" href="/groups" data-lf-go="/groups">Tout voir</a></div>
+            <div id="dashRaids" class="home-raids"></div>
+          </section>
+        </div>
+        <div class="dash-col">
+          <section class="card dash-card dash-search" aria-labelledby="dashSearchTitle">
+            <h2 class="dash-h" id="dashSearchTitle">Rechercher un joueur</h2>
+            <form class="home-search" id="homeSearch" autocomplete="off">
+              <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m10.5 10.5 3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <label class="visually-hidden" for="homeSearchQuery">Rechercher un joueur</label>
+              <input id="homeSearchQuery" type="text" placeholder="Pseudo-Serveur" spellcheck="false" readonly>
+              <button class="btn primary small" type="submit">Rechercher</button>
+            </form>
+            <p class="dash-empty">Sa spé, son équipement, ses talents, sa progression en raid et ses clés Mythique+, tels que le jeu les connaît.</p>
+          </section>
+          <a class="foot-discord dash-discord" href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener" aria-label="Rejoins le Discord de GroupScout (nouvel onglet)">
+            <span class="oauth-ico oauth-discord" aria-hidden="true"></span>
+            <span class="foot-discord-text"><b>Rejoins le Discord</b><small>Questions, idées et nouveautés</small></span>
+            <svg class="foot-discord-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="hero hero-raid">
+      <div class="hero-head">
+        <span class="pill">Raid <span class="pill-sep"></span> Recherche de groupe <span class="pill-sep"></span> En direct</span>
+        <h1>Trouve ton raid, <br>ce soir.</h1>
+        <p class="lead">Des raids qui recrutent, des joueurs qui cherchent, et tout ce qu'il faut pour s'organiser : places par rôle, classes recherchées, chat du raid.</p>
+        <div class="hero-cta">
+          <a class="btn primary big" href="/groups" data-lf-go="/groups">Voir les raids qui recrutent
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn glass big anon-only" href="/login?signup=1" data-view="login">Créer mon compte</a>
+        </div>
+      </div>
+      <div class="home-preview" id="homeRaids" aria-live="polite"></div>
+    </section>
+
+    <section class="steps" id="how" aria-label="Comment ça marche">
+      <article class="card glow">
+        <h2>1. Lie ton Battle.net</h2>
+        <p>Une fois, depuis ton compte : GroupScout lit la liste de tes personnages, rien d'autre. C'est ce qui prouve qu'ils sont bien à toi.</p>
+      </article>
+      <article class="card glow">
+        <h2>2. Postule ou poste</h2>
+        <p>Postule à un raid avec un de tes personnages, publie ton créneau pour qu'on te propose une place, ou poste ta propre annonce : boss prévus, horaires, composition, classes recherchées.</p>
+      </article>
+      <article class="card glow">
+        <h2>3. Rejoins le raid</h2>
+        <p>Le leader voit ta spé, ton équipement et ta progression, et te propose une place. Accepte, parle avec le raid, et retrouvez-vous en jeu sous le titre de l'annonce.</p>
+      </article>
+    </section>
+
+    <section class="faq" id="faq">
+      <span class="pill">Questions</span>
+      <h2 class="section-title">Avant de te lancer</h2>
+      <div class="faq-list">
+        <details class="faq-item">
+          <summary>C'est gratuit ?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <p>Oui. Un compte suffit, avec ton Battle.net lié pour choisir tes personnages.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Pourquoi lier mon Battle.net ?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <p>Pour que personne ne postule avec un personnage qui n'est pas le sien. GroupScout ne lit que la liste de tes personnages : ni ton adresse, ni ton mot de passe, et il ne peut rien modifier sur ton compte.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Que voit le leader quand je postule ?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <p>Ton personnage tel que le jeu le connaît : spé, niveau d'objet, progression dans le raid, cote Mythique+, et sa fiche complète d'un clic (équipement, talents). Plus la note que tu laisses avec ta candidature.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Comment on se retrouve dans le jeu ?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <p>Chaque annonce a un titre du type <code>GroupScout: CODE</code>. Le leader liste son raid dans la recherche de groupe du jeu avec ce titre, et les membres acceptés le cherchent pour postuler.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Et le Mythique+ ?<span class="faq-plus" aria-hidden="true"></span></summary>
+          <p>Le raid d'abord. Les clés viendront ensuite.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="final-cta anon-only">
+      <div class="card glow final-card">
+        <h2>Ton prochain raid t'attend</h2>
+        <p>Crée ton compte, lie ton Battle.net, et postule en un clic aux raids qui recrutent.</p>
+        <div class="hero-cta">
+          <a class="btn primary big" href="/login?signup=1" data-view="login">Créer mon compte
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a class="btn glass big" href="/login" data-view="login">J'ai déjà un compte</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="foot-panel foot-glass">
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="foot-logo" href="/" data-view="home" aria-label="GroupScout, accueil"><span class="logo-br" aria-hidden="true">[</span><span class="logo-word" translate="no">Group<span class="logo-s">Scout</span></span><span class="logo-br" aria-hidden="true">]</span></a>
+            <p>Trouve ton raid World of Warcraft, ou monte le tien.</p>
+            <a class="foot-discord" href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener" aria-label="Rejoins le Discord de GroupScout (nouvel onglet)">
+              <span class="oauth-ico oauth-discord" aria-hidden="true"></span>
+              <span class="foot-discord-text"><b>Rejoins le Discord</b><small>Questions, idées et nouveautés</small></span>
+              <svg class="foot-discord-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h9.5M8.5 4l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </a>
+          </div>
+          <nav class="foot-col" aria-label="Pages du site">
+            <h2 class="foot-title">Pages</h2>
+            <a href="/" data-view="home">Accueil</a>
+            <a href="/groups" data-lf-go="/groups">Trouver un groupe</a>
+            <a href="/player" data-pal-open>Rechercher un joueur</a>
+            <a class="auth-only" href="/account" data-view="account">Mon compte</a>
+            <a class="anon-only" href="/login" data-view="login">Se connecter</a>
+          </nav>
+          <nav class="foot-col" aria-label="Découvrir GroupScout">
+            <h2 class="foot-title">Découvrir</h2>
+            <a href="/#how" data-view="home">Comment ça marche</a>
+            <a href="/#faq" data-view="home">Questions</a>
+          </nav>
+          <nav class="foot-col" aria-label="Informations">
+            <h2 class="foot-title">Infos</h2>
+            <a href="/privacy" data-view="legal">Confidentialité</a>
+            <a href="/terms" data-view="legal">Conditions d'utilisation</a>
+            <a href="/contact" data-view="contact">Contact</a>
+            <a href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener">Discord</a>
+          </nav>
+        </div>
+        <div class="foot-bottom">
+          <p>© 2026 GroupScout · données du jeu : Blizzard</p>
+          <p>Site de fan, sans lien avec Blizzard Entertainment.</p>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Connexion et inscription (une seule page)                       -->
+  <!-- ============================================================== -->
+  <main id="login" class="auth" hidden>
+    <section class="card glow auth-card">
+      <div class="auth-tabs" id="authTabs" role="tablist" aria-label="Connexion ou inscription" data-active="login">
+        <button type="button" role="tab" id="authTabLogin" data-auth-tab="login" aria-selected="true" aria-controls="authForm">Connexion</button>
+        <button type="button" role="tab" id="authTabRegister" data-auth-tab="register" aria-selected="false" aria-controls="authForm" tabindex="-1">Inscription</button>
+      </div>
+      <span class="card-kicker" id="authKicker" hidden>Connexion</span>
+      <h1 class="auth-title" id="authTitle">Content de te revoir</h1>
+      <p class="auth-lead" id="authLead">Connecte-toi pour postuler à un raid ou poster ton annonce.</p>
+
+      <form id="authForm" autocomplete="on" novalidate>
+        <label class="auth-field" id="authNameField" hidden>
+          <span>Ton pseudo</span>
+          <input id="authName" type="text" autocomplete="nickname" maxlength="40" spellcheck="false">
+        </label>
+        <label class="auth-field" id="authEmailField">
+          <span>Adresse e-mail</span>
+          <input id="authEmail" type="email" autocomplete="email" spellcheck="false">
+        </label>
+        <label class="auth-field" id="authPasswordField">
+          <span>Mot de passe</span>
+          <input id="authPassword" type="password" autocomplete="current-password">
+        </label>
+        <label class="toggle auth-remember" id="authRememberField" hidden>
+          <input id="authRemember" type="checkbox">
+          <span>Se souvenir de moi</span>
+        </label>
+        <p class="auth-msg" id="authMessage" role="status"></p>
+        <p class="auth-error" id="authError" role="alert"></p>
+        <button class="btn primary auth-submit" type="submit" id="authSubmit">Se connecter</button>
+        <p class="auth-legal" id="authLegal" hidden>En créant ton compte, tu acceptes les <a href="/terms" data-view="legal">conditions d'utilisation</a> et la <a href="/privacy" data-view="legal">politique de confidentialité</a>.</p>
+      </form>
+
+      <div class="auth-foot" id="authFoot">
+        <button class="linkish" type="button" id="authSwap" hidden>Revenir à la connexion</button>
+        <button class="linkish" type="button" id="authForgot">Mot de passe oublié</button>
+      </div>
+
+      <div class="auth-providers" id="authProviders" hidden>
+        <p class="auth-sep">ou continue avec</p>
+        <!-- Affichés seulement si le service est configuré sur le serveur -->
+        <div class="auth-provider-row">
+          <button class="auth-provider" type="button" data-oauth="google" title="Continuer avec Google" aria-label="Continuer avec Google" hidden><span class="oauth-ico oauth-google" aria-hidden="true"></span></button>
+          <button class="auth-provider" type="button" data-oauth="discord" title="Continuer avec Discord" aria-label="Continuer avec Discord" hidden><span class="oauth-ico oauth-discord" aria-hidden="true"></span></button>
+          <button class="auth-provider" type="button" data-oauth="bnet" title="Continuer avec Battle.net" aria-label="Continuer avec Battle.net" hidden><span class="oauth-ico oauth-bnet" aria-hidden="true"></span></button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Contact (/contact) : le message part par le serveur vers         -->
+  <!-- l'adresse de contact, jamais affichée sur le site               -->
+  <!-- ============================================================== -->
+  <main id="contact" class="auth" hidden>
+    <section class="card glow auth-card contact-card">
+      <div id="contactFormBox">
+        <span class="card-kicker">Contact</span>
+        <h1 class="auth-title">Écris-nous</h1>
+        <p class="auth-lead">Une question, un souci sur le site, une idée : laisse ton message, on te répond par e-mail.</p>
+        <form id="contactForm" novalidate>
+          <div class="contact-row">
+            <label class="auth-field">
+              <span>Ton pseudo</span>
+              <input id="contactName" type="text" autocomplete="nickname" maxlength="60" spellcheck="false">
+            </label>
+            <label class="auth-field">
+              <span>Ton adresse e-mail</span>
+              <input id="contactEmail" type="email" autocomplete="email" maxlength="200" spellcheck="false" required>
+            </label>
+          </div>
+          <label class="auth-field">
+            <span>Sujet</span>
+            <select id="contactTopic">
+              <option value="question">Une question</option>
+              <option value="bug">Un problème sur le site</option>
+              <option value="idea">Une idée</option>
+              <option value="data">Mes données</option>
+              <option value="other">Autre chose</option>
+            </select>
+          </label>
+          <label class="auth-field">
+            <span>Ton message</span>
+            <textarea id="contactMessage" rows="7" maxlength="3000" required></textarea>
+          </label>
+          <p class="contact-count" id="contactCount" aria-live="polite"></p>
+          <!-- Piège à robots : caché aux humains, ignoré par le serveur s'il est rempli -->
+          <label class="contact-hp" aria-hidden="true">Site web<input id="contactWebsite" type="text" tabindex="-1" autocomplete="off"></label>
+          <p class="auth-error" id="contactError" role="alert"></p>
+          <button class="btn primary auth-submit" type="submit" id="contactSubmit">Envoyer</button>
+          <p class="auth-legal">Ton adresse ne sert qu'à te répondre. <a href="/privacy" data-view="legal">Confidentialité</a></p>
+        </form>
+        <p class="contact-alt">Pour discuter avec la communauté, passe aussi sur le <a href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener">Discord</a>.</p>
+      </div>
+      <div id="contactDone" class="contact-done" hidden>
+        <div class="link-done" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="card-kicker">Contact</span>
+        <h1 class="auth-title">Message envoyé</h1>
+        <p class="auth-lead" id="contactDoneLead"></p>
+        <button class="btn glass" type="button" id="contactAgain">Écrire un autre message</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Mon compte -->
+  <main id="account" class="auth" hidden>
+    <section class="card glow auth-card auth-wide" id="accountCard"></section>
+  </main>
+
+  <!-- Backoffice de l'admin -->
+  <main id="admin" class="auth" hidden>
+    <section class="card glow auth-card auth-wide" id="adminCard"></section>
+  </main>
+
+  <!-- Recherche de groupe (/groups…) : tout est dessiné par groups.js -->
+  <main id="groups" class="groups-page" hidden></main>
+
+  <!-- Fiche joueur : /player/<Nom>/<Serveur> -->
+  <main id="player" class="player-page" hidden>
+    <div id="playerTop" class="player-top">
+      <div id="playerHead"></div>
+    </div>
+    <div id="playerProg"></div>
+    <div id="playerGear" class="player-gear"></div>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- Confidentialité (/privacy) et conditions (/terms)               -->
+  <!-- ============================================================== -->
+  <!-- Textes statiques : openLegal n'affiche que le document demandé. Ils décrivent ce que le site
+       fait vraiment (durées, services extérieurs, cookies) : à mettre à jour avec le code, et la
+       date du document avec. -->
+  <main id="legal" class="legal" hidden>
+    <nav class="legal-tabs" aria-label="Documents">
+      <a href="/privacy" data-view="legal" data-legal-tab="privacy">Confidentialité</a>
+      <a href="/terms" data-view="legal" data-legal-tab="terms">Conditions d'utilisation</a>
+    </nav>
+
+    <article class="card glow legal-card" data-legal="privacy" aria-labelledby="privacyTitle" hidden>
+      <span class="card-kicker">Confidentialité</span>
+      <h1 class="legal-title" id="privacyTitle">Tes données sur GroupScout</h1>
+      <p class="legal-date">Mise à jour le 3 octobre 2026</p>
+      <p class="legal-lead">GroupScout ne garde que ce qu'il faut pour faire marcher le site. Voici quoi, pourquoi, combien de temps, et comment tout effacer.</p>
+
+      <ul class="legal-summary">
+        <li><b>Aucune publicité</b>, rien de vendu ni de partagé à des fins commerciales.</li>
+        <li><b>Ton Battle.net</b> ne sert qu'à lire la liste de tes personnages.</li>
+        <li><b>La mesure d'audience est anonyme</b>, et tu peux la refuser en un clic.</li>
+        <li><b>Tu supprimes ton compte quand tu veux</b>, depuis « Ton compte ».</li>
+      </ul>
+
+      <nav class="legal-toc" aria-label="Sommaire">
+        <a href="#privacy-who">Qui s'occupe de tes données</a>
+        <a href="#privacy-data">Ce qui est gardé</a>
+        <a href="#privacy-visible">Qui voit quoi</a>
+        <a href="#privacy-players">Les joueurs affichés</a>
+        <a href="#privacy-services">Services extérieurs</a>
+        <a href="#privacy-cookies">Cookies</a>
+        <a href="#analytics">Mesure d'audience</a>
+        <a href="#privacy-security">Sécurité</a>
+        <a href="#privacy-rights">Tes droits</a>
+      </nav>
+
+      <section class="legal-sec" id="privacy-who">
+        <h2>Qui s'occupe de tes données</h2>
+        <p>GroupScout est responsable des données décrites sur cette page. Pour toute question ou demande, passe par le <a href="/contact" data-view="contact">formulaire de contact</a>.</p>
+      </section>
+
+      <section class="legal-sec" id="privacy-data">
+        <h2>Ce qui est gardé, pourquoi, et combien de temps</h2>
+        <dl class="legal-data">
+          <div>
+            <dt>Ton compte</dt>
+            <dd>Ton adresse e-mail, ton pseudo, ton mot de passe (jamais conservé en clair), tes dates d'inscription et de dernière connexion. Ils servent à te connecter et à t'envoyer les codes de confirmation et les liens de mot de passe oublié. Aucune lettre d'information, aucune publicité.</dd>
+            <dd class="legal-keep">Tant que ton compte existe.</dd>
+          </div>
+          <div>
+            <dt>Connexion avec Google ou Discord</dt>
+            <dd>Si tu l'utilises : l'identifiant de ton compte Google ou Discord et son adresse e-mail. Rien d'autre (ni contacts, ni messages, ni serveurs Discord).</dd>
+            <dd class="legal-keep">Jusqu'à ce que tu le délies, ou que tu supprimes ton compte.</dd>
+          </div>
+          <div>
+            <dt>Ton Battle.net</dt>
+            <dd>Si tu le lies : ton BattleTag et la liste de tes personnages (nom, serveur, classe, niveau). Il sert à vérifier qu'un personnage est bien à toi quand tu postes une annonce ou que tu postules, et, si tu le veux, à te connecter : ta liste est alors relue à chaque connexion. Si tu choisis un personnage principal, la fiche de tes autres personnages indique lequel c'est. GroupScout ne garde aucun accès à ton compte Battle.net.</dd>
+            <dd class="legal-keep">Jusqu'à ce que tu le délies, ou que tu supprimes ton compte.</dd>
+          </div>
+          <div>
+            <dt>Tes connexions ouvertes</dt>
+            <dd>La date et le navigateur de chaque connexion, pour pouvoir les fermer, par exemple quand tu changes de mot de passe.</dd>
+            <dd class="legal-keep">30 jours, ou jusqu'à ta déconnexion.</dd>
+          </div>
+          <div>
+            <dt>La recherche de groupe</dt>
+            <dd>Tes annonces de raid (raid, horaires, langues, composition, description, lien Discord), tes candidatures et ta recherche (le personnage choisi, ton rôle, ta note, ton créneau, les boss visés), le profil de ce personnage tel que le jeu le donne (spé, niveau d'objet, progression, cote Mythique+), et les messages du chat du raid.</dd>
+            <dd class="legal-keep">Effacés 24 heures après la fin du raid. Une recherche, une heure après la fin de ton créneau.</dd>
+          </div>
+          <div>
+            <dt>Tes notifications</dt>
+            <dd>Ce que la cloche du site t'annonce : une candidature à ton raid, une place proposée, une arrivée ou un départ dans tes raids, un raid annulé.</dd>
+            <dd class="legal-keep">30 jours au plus, ou jusqu'à ce que tu les effaces.</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="legal-sec" id="privacy-visible">
+        <h2>Qui voit quoi</h2>
+        <ul>
+          <li><b>La recherche de groupe</b> est publique : les annonces, les membres d'un raid, les joueurs qui ont postulé avec leur note et leur profil, et les recherches. Le chat d'un raid n'est lu que par ses membres ; l'administrateur peut y accéder pour modérer un abus.</li>
+          <li><b>Le lien Discord d'une annonce</b> n'est montré qu'aux membres du raid et aux joueurs à qui une place est proposée.</li>
+          <li><b>Ton adresse e-mail et ton mot de passe</b> ne sont jamais montrés aux autres utilisateurs.</li>
+          <li><b>Pour t'aider ou modérer</b>, l'administrateur peut afficher le site tel que tu le vois. Il ne peut pas voir ton mot de passe.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="privacy-players">
+        <h2>Les joueurs affichés sur GroupScout</h2>
+        <p>Les fiches reprennent des informations déjà publiques dans le jeu et sur l'armurerie de Blizzard : spé, équipement, talents, progression en raid, clés Mythique+. GroupScout ne les modifie pas et les relit régulièrement.</p>
+        <p>Si tu joues un personnage affiché ici et que tu veux faire corriger ou retirer quelque chose qui te concerne, passe par le <a href="/contact" data-view="contact">formulaire de contact</a>.</p>
+      </section>
+
+      <section class="legal-sec" id="privacy-services">
+        <h2>Les services extérieurs</h2>
+        <p>Tes données ne quittent GroupScout que pour ces services, chacun pour une raison précise :</p>
+        <ul>
+          <li><b>OVHcloud</b> héberge le site.</li>
+          <li><b>Brevo</b> envoie les e-mails (code de confirmation, lien de mot de passe oublié, messages du formulaire de contact) : il reçoit ton adresse e-mail, et ton message si tu nous écris.</li>
+          <li><b>Blizzard</b> reçoit les noms des personnages dont le site lit le profil, sans rien qui te concerne.</li>
+          <li><b>Raider.IO</b> est interrogé directement par ton navigateur quand tu cherches un joueur par son nom : il reçoit ce que tu tapes, avec ton adresse IP et le type de ton navigateur, comme pour toute page web. Jamais ton adresse e-mail ni ton compte.</li>
+          <li><b>Google, Discord et Battle.net</b>, seulement si tu choisis de les utiliser. Ce sont des sociétés américaines : leurs propres règles de confidentialité s'appliquent quand tu te connectes chez eux.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="privacy-cookies">
+        <h2>Cookies et stockage dans ton navigateur</h2>
+        <p>GroupScout n'utilise ni cookie publicitaire ni traceur extérieur. Ce qu'il dépose est nécessaire au site ou à la mesure d'audience anonyme, c'est pourquoi aucun bandeau ne te le demande.</p>
+        <ul>
+          <li><b>Cookie de connexion</b> : te garder connecté. 30 jours.</li>
+          <li><b>Cookies de connexion avec Google, Discord ou Battle.net</b> : sécuriser le passage par ces services. Quelques minutes.</li>
+          <li><b>Dans ton navigateur uniquement</b> : tes réglages, ton historique de recherche et tes favoris, ton adresse e-mail si tu as coché « Se souvenir de moi », et la date de ta première visite pour la mesure d'audience (13 mois au plus). Rien de tout ça n'est envoyé.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="analytics">
+        <h2>Mesure d'audience</h2>
+        <p>GroupScout compte ses visites pour savoir quelles pages servent et ce qui mérite d'être amélioré : nombre de visiteurs, pages vues, boutons utilisés, temps passé, type d'appareil et site d'où l'on arrive.</p>
+        <ul>
+          <li><b>C'est anonyme.</b> Ton adresse IP n'est pas gardée, et ces chiffres ne sont jamais reliés à ton compte ni suivis d'un jour à l'autre.</li>
+          <li><b>Rien ne sort du site.</b> Aucun outil extérieur, rien de partagé ni de revendu.</li>
+          <li><b>Effacé au bout de 13 mois.</b></li>
+          <li><b>Le signal « ne pas me suivre »</b> de ton navigateur (Global Privacy Control) est respecté.</li>
+        </ul>
+        <div class="privacy-choice" id="privacyChoice" aria-live="polite"></div>
+      </section>
+
+      <section class="legal-sec" id="privacy-security">
+        <h2>Sécurité</h2>
+        <p>Le site n'est accessible qu'en connexion sécurisée. Les mots de passe ne sont jamais conservés en clair, et les tentatives de connexion à répétition sont freinées. Ton adresse IP sert uniquement à freiner ces abus : elle est oubliée au bout de 24 heures et n'est pas enregistrée avec ton compte.</p>
+      </section>
+
+      <section class="legal-sec" id="privacy-rights">
+        <h2>Tes droits</h2>
+        <p>Tu peux à tout moment consulter, corriger ou effacer tes données, t'opposer à leur utilisation, ou en demander une copie :</p>
+        <ul>
+          <li>ton pseudo, ton mot de passe et tes liaisons se changent dans <a href="/account" data-view="account">Ton compte</a> ;</li>
+          <li><b>supprimer ton compte</b>, au même endroit, efface ton compte, tes liaisons, ton annonce, tes candidatures, ta recherche et tes notifications ;</li>
+          <li>pour tout le reste, passe par le <a href="/contact" data-view="contact">formulaire de contact</a> : tu auras une réponse sous un mois.</li>
+        </ul>
+        <p>Si tu estimes que tes droits ne sont pas respectés, tu peux saisir la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener">cnil.fr</a>).</p>
+        <p>Si cette page change de façon importante, le site te le dira.</p>
+      </section>
+    </article>
+
+    <article class="card glow legal-card" data-legal="terms" aria-labelledby="termsTitle" hidden>
+      <span class="card-kicker">Conditions d'utilisation</span>
+      <h1 class="legal-title" id="termsTitle">Les règles de GroupScout</h1>
+      <p class="legal-date">Mise à jour le 3 octobre 2026</p>
+      <p class="legal-lead">En utilisant GroupScout, tu acceptes ces conditions. Elles sont courtes : prends deux minutes pour les lire.</p>
+
+      <nav class="legal-toc" aria-label="Sommaire">
+        <a href="#terms-service">Le service</a>
+        <a href="#terms-account">Ton compte</a>
+        <a href="#terms-groups">Recherche de groupe</a>
+        <a href="#terms-forbidden">Ce qui est interdit</a>
+        <a href="#terms-end">Suspension et fin</a>
+        <a href="#terms-liability">Responsabilité</a>
+        <a href="#terms-hosting">Hébergement et contact</a>
+      </nav>
+
+      <section class="legal-sec" id="terms-service">
+        <h2>Le service</h2>
+        <p>GroupScout aide les joueurs de World of Warcraft à trouver un raid ou à monter le leur : annonces de raid, candidatures, recherche de joueurs, chat du raid, et la fiche de chaque personnage. Les informations sur les personnages viennent de l'API de Blizzard et des joueurs eux-mêmes.</p>
+        <p>GroupScout est un site de fan, sans lien avec Blizzard Entertainment. World of Warcraft et Battle.net sont des marques de Blizzard Entertainment. Raider.IO est un service indépendant.</p>
+        <p>Les icônes de classes, de spécialisations et d'objets viennent de Clean Icons - Mechagnome Edition, par AcidWeb.</p>
+      </section>
+
+      <section class="legal-sec" id="terms-account">
+        <h2>Ton compte</h2>
+        <ul>
+          <li>Il te faut une adresse e-mail valide, que tu confirmes avec le code reçu.</li>
+          <li>Ton compte est personnel : ne partage pas ton mot de passe. Tu es responsable de ce qui est fait avec.</li>
+          <li>Ton pseudo ne doit être ni insultant, ni trompeur, ni celui de quelqu'un d'autre.</li>
+          <li>Si tu as moins de 15 ans, demande l'accord d'un parent avant de créer ton compte.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="terms-groups">
+        <h2>Recherche de groupe</h2>
+        <ul>
+          <li>Une annonce décrit un vrai raid que tu comptes mener : pas d'annonce fictive ni de publicité.</li>
+          <li>Ne postule qu'avec tes propres personnages, et ne prends une place que si tu comptes venir.</li>
+          <li>Titres, descriptions, notes et messages du chat ne doivent contenir ni insulte, ni menace, ni information personnelle sur quelqu'un.</li>
+          <li>Le message laissé quand tu retires quelqu'un du raid, ou quand tu le quittes, reste courtois.</li>
+          <li>GroupScout peut supprimer une annonce, une candidature ou un message qui ne respecte pas ces règles.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="terms-forbidden">
+        <h2>Ce qui est interdit</h2>
+        <ul>
+          <li>Utiliser GroupScout pour harceler quelqu'un ou organiser une campagne contre un joueur.</li>
+          <li>Récupérer les données du site de façon automatisée, ou les revendre.</li>
+          <li>Contourner les limites du site, tenter d'accéder au compte de quelqu'un d'autre ou de perturber le service.</li>
+          <li>Se faire passer pour un autre joueur.</li>
+        </ul>
+      </section>
+
+      <section class="legal-sec" id="terms-end">
+        <h2>Suspension et fin</h2>
+        <p>Tu peux supprimer ton compte à tout moment depuis « Ton compte ». GroupScout peut suspendre ou supprimer un compte qui ne respecte pas ces conditions, après t'avoir prévenu sauf en cas d'abus grave.</p>
+      </section>
+
+      <section class="legal-sec" id="terms-liability">
+        <h2>Responsabilité</h2>
+        <p>GroupScout fait de son mieux pour que le site fonctionne et que ses informations soient justes, sans pouvoir le garantir : il peut être interrompu pour maintenance, et ses fonctions peuvent évoluer. Les annonces sont effacées 24 heures après la fin du raid. GroupScout ne peut pas être tenu responsable d'un raid qui ne se fait pas, d'un joueur qui ne vient pas, ni des services extérieurs (Blizzard, Battle.net, Raider.IO, Google, Discord).</p>
+      </section>
+
+      <section class="legal-sec" id="terms-hosting">
+        <h2>Hébergement et contact</h2>
+        <p>Le site est hébergé par OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.</p>
+        <p>Une question, un abus à signaler : passe par le <a href="/contact" data-view="contact">formulaire de contact</a>.</p>
+        <p>Ces conditions peuvent évoluer ; si c'est important, le site te le dira. Elles sont soumises au droit français. En cas de désaccord, écris-nous d'abord : on cherchera une solution ensemble avant tout recours.</p>
+      </section>
+    </article>
+
+    <footer class="footer legal-foot">
+      <div class="foot-panel foot-glass">
+        <div class="foot-grid">
+          <div class="foot-brand">
+            <a class="foot-logo" href="/" data-view="home" aria-label="GroupScout, accueil"><span class="logo-br" aria-hidden="true">[</span><span class="logo-word" translate="no">Group<span class="logo-s">Scout</span></span><span class="logo-br" aria-hidden="true">]</span></a>
+            <p>Trouve ton raid World of Warcraft, ou monte le tien.</p>
+          </div>
+          <nav class="foot-col" aria-label="Pages du site">
+            <h2 class="foot-title">Pages</h2>
+            <a href="/" data-view="home">Accueil</a>
+            <a href="/groups" data-lf-go="/groups">Trouver un groupe</a>
+            <a href="/player" data-pal-open>Rechercher un joueur</a>
+            <a class="anon-only" href="/login" data-view="login">Se connecter</a>
+          </nav>
+          <nav class="foot-col" aria-label="Découvrir GroupScout">
+            <h2 class="foot-title">Découvrir</h2>
+            <a href="/#how" data-view="home">Comment ça marche</a>
+            <a href="/#faq" data-view="home">Questions</a>
+          </nav>
+          <nav class="foot-col" aria-label="Informations">
+            <h2 class="foot-title">Infos</h2>
+            <a href="/privacy" data-view="legal">Confidentialité</a>
+            <a href="/terms" data-view="legal">Conditions d'utilisation</a>
+            <a href="/contact" data-view="contact">Contact</a>
+            <a href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener">Discord</a>
+          </nav>
+        </div>
+        <div class="foot-bottom">
+          <p>© 2026 GroupScout · données du jeu : Blizzard</p>
+          <p>Site de fan, sans lien avec Blizzard Entertainment.</p>
+        </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- Pied de page court des pages connectées (fiche joueur, compte, connexion, recherche de groupe) -->
+  <footer class="footer footer-slim">
+    <div class="foot-panel foot-glass slim-panel">
+    <div class="slim-inner">
+      <a class="foot-logo slim-logo" href="/" data-view="home" aria-label="GroupScout, accueil"><span class="logo-br" aria-hidden="true">[</span><span class="logo-word" translate="no">Group<span class="logo-s">Scout</span></span><span class="logo-br" aria-hidden="true">]</span></a>
+      <p class="slim-note"><span translate="no">© 2026</span><span>Site de fan, sans lien avec Blizzard Entertainment.</span></p>
+      <nav class="slim-links" aria-label="Informations">
+        <a href="/privacy" data-view="legal">Confidentialité</a>
+        <a href="/terms" data-view="legal">Conditions d'utilisation</a>
+        <a href="/contact" data-view="contact">Contact</a>
+        <a class="slim-discord" href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener" aria-label="Rejoins le Discord de GroupScout (nouvel onglet)"><span class="oauth-ico oauth-discord" aria-hidden="true"></span><span>Discord</span></a>
+      </nav>
+    </div>
+    </div>
+  </footer>
+
+  <!-- Fenêtre (modale) : confirmations, Battle.net, code de confirmation, candidature… Hors des
+       vues, pour qu'une réécriture de la page ne l'efface pas en cours de saisie. -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-back" data-action="modal-close" aria-hidden="true"></div>
+    <section class="card glow modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <button class="modal-x" type="button" data-action="modal-close" title="Fermer" aria-label="Fermer">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      </button>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-body" id="modalBody"></div>
+    </section>
+  </div>
+
+  <!-- Barre d'usurpation d'identité : visible tant qu'un admin regarde le site avec les yeux d'un autre compte -->
+  <div id="impBar" class="imp-bar" role="status" hidden></div>
+  <!-- Outils admin en local (localhost + compte admin), rempli par renderDevDock() -->
+  <div id="devDock" class="dev-dock" translate="no" hidden></div>
+
+  <!-- Rechercher un joueur : palette à la Raycast (openPalette), remplie par bindPalette -->
+  <div id="palette" class="palette" hidden>
+    <div class="pal-back" data-pal="close" aria-hidden="true"></div>
+    <section id="paletteCard" class="pal-card" role="dialog" aria-modal="true" aria-label="Rechercher un joueur"></section>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <script src="/i18n.js"></script>
+  <script src="/shared.js"></script>
+  <script src="/select.js"></script>
+  <script src="/stats.js"></script>
+  <script src="/js/core.js"></script>
+  <script src="/js/nav.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/player.js"></script>
+  <script src="/js/groups.js"></script>
+  <script src="/js/admin.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

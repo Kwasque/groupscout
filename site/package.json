@@ -1,0 +1,11 @@
+{
+  "name": "groupscout",
+  "version": "2.0.0",
+  "description": "Recherche de raid World of Warcraft : annonces, candidatures, joueurs qui cherchent",
+  "main": "server.js",
+  "private": true,
+  "engines": { "node": ">=22.5" },
+  "scripts": {
+    "start": "node server.js"
+  }
+}
