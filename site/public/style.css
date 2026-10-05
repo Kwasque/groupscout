@@ -3104,37 +3104,13 @@ a.lf-cname:hover { text-decoration: underline; text-underline-offset: 3px; }
 .lf-chp:disabled { opacity: .4; cursor: not-allowed; }
 .lf-modal-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 
-/* Accueil : ton prochain raid, tes tags */
-.dash-lfg:empty { display: none; }
-.dash-lfg { margin-bottom: 16px; }
-.lf-dash { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: start; }
-.lf-dash.is-single { grid-template-columns: 1fr; }
-.lf-tonight { display: grid; gap: 12px; color: var(--text); text-decoration: none; }
-.lf-tonight:hover { border-color: rgba(167, 139, 250, .4); }
-.lf-tonight .lf-kicker { margin: 0; }
-.lf-tn-top { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.lf-tn-art { flex: none; width: 76px; height: 56px; border-radius: 12px; background: var(--art) center / cover no-repeat, #1a1624; }
-.lf-tn-t { display: grid; gap: 4px; min-width: 0; }
-.lf-tn-t > b { font: 500 17px/22px var(--display); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lf-tn-t small { font-size: 12px; color: var(--muted); }
-.lf-tn-cd { margin-left: auto; display: grid; justify-items: end; text-align: right; }
-.lf-tn-cd b { font: 600 22px/28px var(--display); white-space: nowrap; }
-.lf-tn-cd small { font-size: 12px; color: var(--faint); }
-.lf-mytags { display: grid; gap: 10px; }
-.lf-mytags .dash-h { margin: 0; }
-.lf-mt-list { display: grid; gap: 8px; }
-.lf-mt-list .lf-mt { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 14px; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); color: var(--text); text-decoration: none; font-size: 13px; line-height: 18px; }
-.lf-mt-list .lf-mt:hover { border-color: var(--line-strong); }
-.lf-mt-t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lf-mt-t small { display: block; color: var(--muted); font-size: 12px; }
-.lf-mytags > a.lf-small { color: var(--violet); text-decoration: none; justify-self: start; }
 
 @media (max-width: 960px) {
   .lf-raid-grid, .lf-form-grid { grid-template-columns: 1fr; }
   .lf-sticky { position: static; }
   .lf-filters { margin-left: 0; }}
 @media (max-width: 860px) {
-  .lf-grid, .lf-dash { grid-template-columns: 1fr; }
+  .lf-grid { grid-template-columns: 1fr; }
   .lf-row { grid-template-columns: 36px minmax(0, 1fr) auto; }
   .lf-row .lf-hide-s { display: none; }
   .lf-row .lf-acts { grid-column: 2 / -1; justify-content: flex-start; }}
@@ -3144,8 +3120,7 @@ a.lf-cname:hover { text-decoration: underline; text-underline-offset: 3px; }
   .lf-row2, .lf-row3, .lf-choice { grid-template-columns: 1fr; }
   .lf-as .lf-fits { margin-left: 0; }
   .lf-as .kselect { width: 100%; }
-  .lf-apps-head > .lf-small { margin-left: 0; }
-  .lf-tn-cd { display: none; }}
+  .lf-apps-head > .lf-small { margin-left: 0; }}
 @media (max-width: 480px) {
   .lf-cls-pick { grid-template-columns: 1fr; }
   .lf-tabs { width: 100%; }
@@ -3200,8 +3175,7 @@ a.lf-cname:hover { text-decoration: underline; text-underline-offset: 3px; }
 .home-preview:empty { display: none; }
 .home-preview .lf-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 360px)); justify-content: center; }
 .home-preview .lf-empty { max-width: 560px; margin: 0 auto; }
-.home-preview .lf-empty p + p, .home-raids .lf-empty p + p { margin-top: 14px; }
-.home-raids .lf-grid { grid-template-columns: 1fr; }
+.home-preview .lf-empty p + p { margin-top: 14px; }
 .steps .card { min-height: 0; gap: 10px; }
 .home-gate { margin: 0; padding: 22px; }
 #dashGate:empty { display: none; }
@@ -3210,3 +3184,164 @@ a.lf-cname:hover { text-decoration: underline; text-underline-offset: 3px; }
   .home-preview .lf-grid { grid-template-columns: 1fr; }
   .hero.hero-raid { padding-bottom: 72px; }
 }
+
+/* ------------------------------------------------------------------ */
+/* Accueil : calendrier des 14 prochains jours                         */
+/* ------------------------------------------------------------------ */
+/* Maquette « A2 · Ruban, 50 raids par jour ». Difficultés : les couleurs de /groups (.lf-diff).
+   La lavande est la couleur de « toi » : un cercle plein, tu y es (annonce, place) ; en
+   pointillé, pas encore sûr (candidature, place proposée). */
+.cal {
+  --d-normal: #3fe06f; --d-heroic: #b46cf0; --d-mythic: #ff9a2e;
+  display: grid; gap: 20px; padding: 24px; border-radius: 20px;
+}
+.cal-d3 { --dc: var(--d-normal); }
+.cal-d4 { --dc: var(--d-heroic); }
+.cal-d5 { --dc: var(--d-mythic); }
+.cal-head { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px 16px; }
+.cal-kicker { display: block; margin-bottom: 4px; font: 600 12px/16px var(--body); letter-spacing: .12em; text-transform: uppercase; color: var(--violet); }
+.card h2.cal-title { margin: 0; font: 500 22px/1.25 var(--display); letter-spacing: -.02em; }
+.cal-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12px; color: var(--muted); }
+.cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.cal-legend i { width: 14px; height: 4px; border-radius: 2px; background: var(--dc); }
+.cal-legend i.is-ring { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--lavender); background: none; }
+.cal-legend i.is-dash { border-style: dashed; }
+
+/* Le ruban : un bouton par jour */
+.cal-strip { display: grid; grid-template-columns: repeat(14, minmax(0, 1fr)); gap: 6px; }
+.cal-day {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0;
+  padding: 10px 0 11px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, .06);
+  background: rgba(255, 255, 255, .03); color: var(--text); font: inherit; cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+.cal-day.skel { height: 108px; cursor: default; border: 0; }
+.cal-day:hover { border-color: var(--line-strong); }
+.cal-day.is-today { border-color: rgba(167, 139, 250, .5); }
+.cal-wd { font: 600 11px/14px var(--body); letter-spacing: .08em; color: var(--muted); }
+.cal-day.is-today .cal-wd { color: var(--violet); }
+.cal-num {
+  width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%;
+  border: 2px solid transparent; font: 600 18px/1 var(--display);
+}
+.cal-day.is-empty .cal-num { color: #77728a; }
+.cal-num.is-mine { border-color: var(--lavender); box-shadow: 0 0 16px rgba(236, 228, 255, .35); }
+.cal-num.is-maybe { border-color: var(--lavender); border-style: dashed; }
+.cal-mix { display: flex; gap: 1px; width: 40px; height: 4px; border-radius: 2px; overflow: hidden; background: rgba(255, 255, 255, .06); }
+.cal-mix i { background: var(--dc); }
+.cal-n { font: 600 11px/14px var(--body); color: var(--muted); }
+.cal-day.is-on { background: var(--lavender); border-color: var(--lavender); color: var(--lavender-ink); }
+.cal-day.is-on .cal-wd, .cal-day.is-on .cal-n { color: rgba(22, 17, 31, .62); }
+.cal-day.is-on .cal-num { color: var(--lavender-ink); }
+.cal-day.is-on .cal-num.is-mine, .cal-day.is-on .cal-num.is-maybe { border-color: var(--lavender-ink); box-shadow: none; }
+.cal-day.is-on .cal-mix { background: rgba(22, 17, 31, .12); }
+
+/* Le jour choisi, et « Ton prochain raid » à droite */
+.cal-body { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+.cal-detail { display: grid; gap: 12px; min-width: 0; }
+.cal-dh { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 12px; min-height: 30px; }
+.cal-dt { font: 500 16px/22px var(--display); }
+.cal-dt small { font: 13px var(--body); color: var(--muted); }
+.cal-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px;
+  border-radius: 999px; border: 1px solid rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .04);
+  color: var(--text); font: 600 12px/16px var(--body); cursor: pointer;
+}
+.cal-chip:hover { border-color: var(--line-strong); }
+.cal-chip i { width: 7px; height: 7px; border-radius: 50%; background: var(--dc); }
+.cal-chip small { font-size: 12px; opacity: .65; }
+.cal-chip svg { width: 12px; height: 12px; }
+.cal-chip.is-on { background: var(--lavender); border-color: var(--lavender); color: var(--lavender-ink); }
+
+/* Heures de début : une barre par demi-heure (ou par heure), empilée par difficulté */
+.cal-hist { display: grid; gap: 4px; padding: 10px 12px 6px; border-radius: 14px; background: rgba(255, 255, 255, .025); border: 1px solid rgba(255, 255, 255, .06); }
+.cal-hist-h { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+.cal-bars { display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); gap: 4px; align-items: end; }
+.cal-bar { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
+.cal-bar-mark { height: 8px; display: flex; justify-content: center; }
+.cal-bar.has-mine .cal-bar-mark::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--lavender); }
+.cal-bar-stack { height: 56px; display: flex; flex-direction: column-reverse; gap: 1px; border-bottom: 1px solid rgba(255, 255, 255, .1); transition: opacity .15s; }
+.cal-bar-stack i { flex: none; border-radius: 2px; background: var(--dc); }
+.cal-bar:hover .cal-bar-stack { filter: brightness(1.15); }
+.cal-bar.is-dim .cal-bar-stack { opacity: .25; }
+.cal-bar-l { height: 14px; font-size: 10px; line-height: 14px; text-align: center; color: #77728a; white-space: nowrap; }
+.cal-bar.is-on .cal-bar-l { color: var(--lavender); font-weight: 600; }
+
+/* Raids du jour : 4 lignes au plus */
+.cal-rows { display: grid; gap: 6px; }
+.cal-row {
+  display: grid; grid-template-columns: 52px 30px minmax(0, 1fr) auto; align-items: center; gap: 12px;
+  padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, .03); border: 1px solid rgba(255, 255, 255, .06);
+  color: var(--text); text-decoration: none;
+}
+.cal-row:hover { border-color: var(--line-strong); }
+.cal-row.is-mine { border-color: rgba(236, 228, 255, .28); }
+.cal-time { font: 600 15px/20px var(--display); }
+.cal-live { font: 600 11px/14px var(--body); color: var(--v-solide); }
+.cal-letter {
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px;
+  font: 600 13px/1 var(--display); color: var(--dc);
+  background: color-mix(in srgb, var(--dc) 12%, transparent); border: 1px solid color-mix(in srgb, var(--dc) 35%, transparent);
+}
+.cal-row-t { display: flex; align-items: baseline; gap: 8px; min-width: 0; white-space: nowrap; }
+.cal-row-t b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+.cal-row-t small { flex: none; font-size: 12px; color: var(--muted); }
+.cal-me { display: inline-flex; align-items: center; height: 26px; padding: 0 11px; border-radius: 999px; border: 1px dashed var(--lavender); color: var(--lavender); font: 600 12px/16px var(--body); white-space: nowrap; }
+.cal-me.is-solid { border-style: solid; background: var(--lavender); color: var(--lavender-ink); }
+.cal-free { display: flex; align-items: center; gap: 10px; font: 600 12px/16px var(--body); white-space: nowrap; }
+.cal-free > span { display: inline-flex; align-items: center; gap: 5px; }
+.cal-free .role { width: 18px; height: 18px; border-radius: 6px; }
+.cal-free.is-full { color: var(--muted); font-weight: 500; }
+.cal-more { justify-self: start; padding: 4px 2px; border: 0; background: none; color: var(--violet); font: 600 13px/18px var(--body); cursor: pointer; }
+.cal-more:hover { color: var(--lavender); }
+.cal-none { display: grid; justify-items: center; gap: 12px; padding: 18px 14px; border-radius: 12px; border: 1px dashed rgba(255, 255, 255, .12); color: var(--muted); text-align: center; }
+.cal-detail .lf-loading { min-height: 160px; }
+
+/* Ton prochain raid : la seule surface claire du bloc */
+.cal-side { display: grid; gap: 12px; }
+.cal-next { display: grid; gap: 12px; padding: 20px; border-radius: 18px; background: var(--lavender); color: var(--lavender-ink); text-decoration: none; }
+.cal-next-k { font: 600 11px/14px var(--body); letter-spacing: .12em; text-transform: uppercase; color: rgba(22, 17, 31, .62); }
+.cal-next-cd { display: flex; align-items: baseline; gap: 8px; }
+.cal-next-cd small { font-size: 14px; color: rgba(22, 17, 31, .7); }
+.cal-next-cd b { font: 600 40px/1 var(--display); letter-spacing: -.01em; white-space: nowrap; }
+.cal-next-w { display: grid; gap: 2px; }
+.cal-next-w b { font-weight: 600; }
+.cal-next-w small { font-size: 13px; color: rgba(22, 17, 31, .72); }
+.cal-dk3 { color: #17733a; font-weight: 600; }
+.cal-dk4 { color: #6d2aa8; font-weight: 600; }
+.cal-dk5 { color: #9c4c05; font-weight: 600; }
+.cal-next-btn { display: flex; align-items: center; justify-content: center; height: 44px; border-radius: 12px; background: var(--lavender-ink); color: var(--lavender); font-weight: 600; text-decoration: none; }
+.cal-next:hover .cal-next-btn { background: #261d36; }
+.cal-next.is-empty { background: rgba(255, 255, 255, .03); border: 1px dashed rgba(236, 228, 255, .3); color: var(--text); }
+.cal-next.is-empty .cal-next-k { color: var(--violet); }
+.cal-next.is-empty .cal-next-w small { color: var(--muted); }
+.cal-next.is-empty .cal-next-btn { background: rgba(167, 139, 250, .12); border: 1px solid rgba(167, 139, 250, .35); color: var(--lavender); }
+.cal-next.is-empty .cal-next-btn:hover { background: rgba(167, 139, 250, .2); }
+.cal-next-skel { height: 220px; border-radius: 18px; }
+.cal-side-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 14px;
+  border-radius: 14px; border: 1px solid rgba(236, 228, 255, .28); color: var(--muted); font-size: 13px; text-decoration: none;
+}
+.cal-side-row:hover { border-color: rgba(236, 228, 255, .55); }
+.cal-side-row.is-dash { border-style: dashed; border-color: rgba(236, 228, 255, .35); }
+.cal-side-row.is-hot { border-color: var(--lavender); color: var(--lavender); }
+.cal-side-row b { color: var(--text); font-weight: 600; text-align: right; }
+
+@media (max-width: 900px) {
+  .cal-body { grid-template-columns: minmax(0, 1fr); }
+  .cal-side { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); align-items: start; }}
+/* Téléphone : le ruban défile de côté, une ligne de raid passe sur deux lignes */
+@media (max-width: 640px) {
+  .cal { padding: 18px; gap: 16px; }
+  .cal-legend { display: none; }
+  .cal-strip {
+    grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 58px;
+    overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 18px; margin: 0 -18px; padding: 0 18px 4px; scrollbar-width: none;
+  }
+  .cal-strip::-webkit-scrollbar { display: none; }
+  .cal-day { scroll-snap-align: start; }
+  .cal-hist-h span + span { display: none; }
+  .cal-row { grid-template-columns: 46px 30px minmax(0, 1fr); row-gap: 6px; }
+  .cal-row > :last-child { grid-column: 3; justify-self: start; }
+  .cal-row-t { flex-direction: column; align-items: stretch; gap: 0; }}

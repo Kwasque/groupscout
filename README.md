@@ -32,6 +32,24 @@ lier le Battle.net des comptes (choisir son personnage) et à lire les profils. 
 `http://localhost:3000/api/account/bnet/callback` et `<PUBLIC_URL>/api/account/bnet/callback`
 comme adresses de retour.
 
+## Accueil
+
+Un visiteur voit la vitrine et les raids qui recrutent. Un compte connecté voit son tableau de
+bord, avec le **calendrier des 14 prochains jours** :
+
+- **un ruban** avec un bouton par jour : nombre de raids et répartition Normal / Héroïque /
+  Mythique. Un cercle lavande marque tes jours : plein si tu y es (ton annonce, une place), en
+  pointillé si ce n'est pas encore sûr (candidature, place proposée) ;
+- **le jour choisi** : heures de début en barres (un clic filtre sur ce créneau), filtres par
+  difficulté et « Je peux postuler », puis 4 raids au plus, les tiens d'abord. Le lien du bas
+  ouvre `/groups` filtré sur ce jour ;
+- **à droite** : ton prochain raid avec un compte à rebours, puis ta place proposée, tes
+  candidatures, ton annonce et ta recherche.
+
+Le calendrier tient avec des centaines d'annonces : `GET /api/groups/calendar` ne renvoie que
+`[début, difficulté]` de chaque annonce, et les annonces du jour choisi arrivent avec
+`GET /api/groups?from=&to=`.
+
 ## Trouver un groupe (`/groups`)
 
 - **Raids qui recrutent** (`/groups`) : les annonces en cours, filtrables par difficulté, jour et

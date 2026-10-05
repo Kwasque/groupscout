@@ -1139,7 +1139,14 @@ async function handleGroups(req, url, res, me) {
 
   if (req.method === 'GET') {
     rateLimit(req, 120);
-    if (!parts.length) return sendJson(res, 200, { listings: groups.list({ viewerId: viewer }) });
+    if (!parts.length) {
+      // ?from=&to= : les annonces d'un jour du calendrier de l'accueil (deux jours au plus)
+      const from = Number(url.searchParams.get('from'));
+      const to = Number(url.searchParams.get('to'));
+      const range = url.searchParams.has('from') && Number.isFinite(from) && Number.isFinite(to) && to > from && to - from <= 2 * 864e5;
+      return sendJson(res, 200, { listings: groups.list({ viewerId: viewer, ...(range ? { from, to } : {}) }) });
+    }
+    if (parts.length === 1 && parts[0] === 'calendar') return sendJson(res, 200, { raids: groups.calendar() });
     if (parts.length === 1 && parts[0] === 'searches') return sendJson(res, 200, { searches: groups.searches({ viewerId: viewer }) });
     if (parts.length === 1 && parts[0] === 'mine') { requireAccount(me); return sendJson(res, 200, groups.mine(me.id)); }
     if (isCode(parts[0]) && parts.length === 1) return sendJson(res, 200, { listing: groups.view(parts[0], viewer, admin) });

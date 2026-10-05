@@ -59,15 +59,9 @@
       </div>
       <!-- Ce qui manque pour participer : adresse à confirmer, Battle.net à lier -->
       <div id="dashGate"></div>
-      <!-- Ton prochain raid, tes candidatures, ta recherche (renderDashLfg) -->
-      <div class="dash-lfg" id="dashLfg"></div>
+      <!-- Calendrier des 14 prochains jours : tes raids, et ceux qui recrutent (renderCal) -->
+      <section class="card cal" id="dashCal" aria-labelledby="calTitle"></section>
       <div class="dash-grid">
-        <div class="dash-col">
-          <section class="card dash-card" aria-labelledby="dashRaidsTitle">
-            <div class="dash-card-h"><h2 class="dash-h" id="dashRaidsTitle">Raids qui recrutent</h2><a class="linkish" href="/groups" data-lf-go="/groups">Tout voir</a></div>
-            <div id="dashRaids" class="home-raids"></div>
-          </section>
-        </div>
         <div class="dash-col">
           <section class="card dash-card dash-search" aria-labelledby="dashSearchTitle">
             <h2 class="dash-h" id="dashSearchTitle">Rechercher un joueur</h2>
@@ -79,6 +73,8 @@
             </form>
             <p class="dash-empty">Sa spé, son équipement, ses talents, sa progression en raid et ses clés Mythique+, tels que le jeu les connaît.</p>
           </section>
+        </div>
+        <div class="dash-col">
           <a class="foot-discord dash-discord" href="https://discord.gg/ERpxv4rHdh" target="_blank" rel="noopener" aria-label="Rejoins le Discord de GroupScout (nouvel onglet)">
             <span class="oauth-ico oauth-discord" aria-hidden="true"></span>
             <span class="foot-discord-text"><b>Rejoins le Discord</b><small>Questions, idées et nouveautés</small></span>

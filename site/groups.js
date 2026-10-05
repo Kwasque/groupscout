@@ -144,6 +144,8 @@ function createGroupManager({ db, notify = () => {}, now = () => Date.now() } = 
     listingById: db.prepare('SELECT * FROM lfg_listings WHERE id = ?'),
     codeUsed: db.prepare('SELECT 1 FROM lfg_listings WHERE code = ?'),
     activeListings: db.prepare('SELECT * FROM lfg_listings WHERE ends_at > ? ORDER BY starts_at, id'),
+    listingsBetween: db.prepare('SELECT * FROM lfg_listings WHERE kind = ? AND ends_at > ? AND starts_at >= ? AND starts_at < ? ORDER BY starts_at, id'),
+    calendar: db.prepare("SELECT starts_at, json_extract(data, '$.difficulty') AS difficulty FROM lfg_listings WHERE kind = ? AND ends_at > ? ORDER BY starts_at, id"),
     ownActive: db.prepare('SELECT * FROM lfg_listings WHERE account_id = ? AND kind = ? AND ends_at > ?'),
     insertListing: db.prepare(`INSERT INTO lfg_listings (code, account_id, kind, data, starts_at, ends_at, created_at, updated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`),
@@ -396,8 +398,18 @@ function createGroupManager({ db, notify = () => {}, now = () => Date.now() } = 
     };
   }
 
-  function list({ kind = 'raid', viewerId = null } = {}) {
-    return q.activeListings.all(now()).filter((r) => r.kind === kind).map((r) => summary(r, viewerId));
+  // `from` et `to` : seulement les annonces qui commencent dans ce créneau (un jour du calendrier)
+  function list({ kind = 'raid', viewerId = null, from = null, to = null } = {}) {
+    const rows = from != null && to != null
+      ? q.listingsBetween.all(kind, now(), from, to)
+      : q.activeListings.all(now()).filter((r) => r.kind === kind);
+    return rows.map((r) => summary(r, viewerId));
+  }
+
+  // Calendrier de l'accueil : juste [début, difficulté] de chaque annonce, pour compter par jour
+  // sans envoyer des centaines d'annonces entières
+  function calendar({ kind = 'raid' } = {}) {
+    return q.calendar.all(kind, now()).map((r) => [r.starts_at, r.difficulty]);
   }
 
   function publicSearch(row, viewerId = null) {
@@ -904,7 +916,7 @@ function createGroupManager({ db, notify = () => {}, now = () => Date.now() } = 
 
   return {
     LANGS, CLASSES, ROLES, DIFFICULTIES, DEFAULT_COMP, REGION,
-    list, view, summary, mine, searches, subscribe, exists: (code) => Boolean(q.listingByCode.get(String(code || '').toUpperCase())),
+    list, calendar, view, summary, mine, searches, subscribe, exists: (code) => Boolean(q.listingByCode.get(String(code || '').toUpperCase())),
     create, edit, remove,
     tag, setNote, withdraw, ownTag, saveTagSnapshot,
     invite, decline, offer, answer, kick, leave, setCo,
